@@ -7,7 +7,7 @@ const formBtn = $(".form-btn");
 const note = $("#note");
 const content = $("#content");
 const modalBody = $(".modal-body");
-const searchBtn = $(".search");
+const searchForm = $(".search-form");
 const clearBtn = $(".clear");
 const searchInput = $("#search-text");
 
@@ -41,7 +41,8 @@ formBtn.on("click", function() {
   }
 });
 
-searchBtn.on("click", async function() {
+searchForm.on("submit", async function(e) {
+  e.preventDefault();
   let searchText = searchInput.val();
   if (searchText) {
     searchText = searchText.toLowerCase().trim();
