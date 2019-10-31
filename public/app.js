@@ -7,6 +7,9 @@ const formBtn = $(".form-btn");
 const note = $("#note");
 const content = $("#content");
 const modalBody = $(".modal-body");
+const searchBtn = $(".search");
+const clearBtn = $(".clear");
+const searchInput = $("#search-text");
 
 addModalButton.on("click", function() {
   clearError();
@@ -36,6 +39,19 @@ formBtn.on("click", function() {
   } else if (formBtn.hasClass("update")) {
     updateNote(noteText, $(this).data("id"));
   }
+});
+
+searchBtn.on("click", async function() {
+  let searchText = searchInput.val();
+  if (searchText) {
+    searchText = searchText.toLowerCase().trim();
+    await searchNotes(searchText);
+    searchTextHTML(searchText);
+  }
+});
+
+clearBtn.on("click", function() {
+  clearSearch();
 });
 
 async function updateModalHandler(id) {
@@ -86,6 +102,48 @@ async function getNote(id) {
     let jsonData = await response.json();
     const { data, error } = jsonData;
     return data.title;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function searchNotes(text) {
+  try {
+    const searchData = {
+      text
+    };
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(searchData)
+    };
+    let response = await fetch(`/api/notes/search`, options);
+    let jsonData = await response.json();
+    const { data, error } = jsonData;
+
+    if (error) {
+      content.html(`<div class="card mb-4">
+          <div class="card-body">
+            ${error}
+          </div>
+        </div>`);
+    } else {
+      let html = "";
+      data.forEach(item => {
+        html += `<div class="card mb-4">
+					<div class="card-header text-right" data-id=${item._id}>
+						<button class="btn btn-sm btn-warning update-modal">Edit</button>
+						<button class="btn btn-sm btn-danger delete">Delete</button>
+					</div>
+          <div class="card-body">
+            <pre>${item.title}</pre>
+          </div>
+        </div>`;
+      });
+      content.html(html);
+    }
   } catch (err) {
     console.log(err);
   }
@@ -153,6 +211,21 @@ async function deleteNote(id) {
   } catch (err) {
     console.log(err);
   }
+}
+
+function searchTextHTML(text) {
+  $("#search-result").remove();
+  const html = `<p class="search-result">Search result for term: ${text}</p>`;
+  content.prepend(html);
+}
+
+function clearSearchTextHTML() {
+  $("#search-result").remove();
+}
+
+function clearSearch() {
+  clearSearchTextHTML();
+  location.reload();
 }
 
 function showError(errMsg) {

@@ -4,7 +4,7 @@ const getDataById = require("../helper");
 
 const router = express.Router();
 
-//get all notes (search)
+//get all notes
 router.get("/", async (req, res) => {
   try {
     const notes = await Note.find({});
@@ -12,6 +12,23 @@ router.get("/", async (req, res) => {
       return res.status(200).json({ data: notes, error: null });
     }
     return res.status(200).json({ error: "No data found." });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Server error. Please try again later." });
+  }
+});
+
+//search notes
+router.post("/search", async (req, res) => {
+  try {
+    const text = req.body.text;
+    if (text) {
+      const notes = await Note.find({ title: { $regex: ".*" + text + ".*", $options: "i" } });
+      if (notes.length > 0) {
+        return res.status(200).json({ data: notes, error: null });
+      }
+      return res.status(200).json({ error: "No data found." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Server error. Please try again later." });
