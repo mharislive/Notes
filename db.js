@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const connectToDB = async () => {
-  const uri = "mongodb://localhost:27017/notesdb";
+  const uri = "mongodb://127.0.0.1:27017/notesdb";
 
   try {
     await mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
